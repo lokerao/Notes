@@ -17,11 +17,24 @@ export default function Dashboard() {
   const [sortMode, setSortMode] = useState<SortMode>('date');
   const [searchQuery, setSearchQuery] = useState('');
   const [isQuickActionOpen, setIsQuickActionOpen] = useState(false);
+  const [showNoteForm, setShowNoteForm] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleNoteAdded = () => {
     setRefreshTrigger(prev => prev + 1);
-    setIsQuickActionOpen(false);
+    setShowNoteForm(false);
+  };
+
+  const handleQuickAction = (type: string) => {
+    switch (type) {
+      case 'Note':
+        setShowNoteForm(true);
+        setIsQuickActionOpen(false);
+        break;
+      // Add other action handlers here
+      default:
+        break;
+    }
   };
 
   const quickActions = [
@@ -91,6 +104,7 @@ export default function Dashboard() {
 
       <main className="flex-1 px-4 py-6">
         <div className="mx-auto max-w-7xl">
+          {showNoteForm && <NoteForm onNoteAdded={handleNoteAdded} />}
           <NoteList refreshTrigger={refreshTrigger} viewMode={viewMode} />
         </div>
       </main>
@@ -108,6 +122,7 @@ export default function Dashboard() {
               {quickActions.map((action) => (
                 <button
                   key={action.label}
+                  onClick={() => handleQuickAction(action.label)}
                   className="flex items-center space-x-2 rounded-lg p-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   <span className={`rounded-lg ${action.color} p-2 text-white`}>
