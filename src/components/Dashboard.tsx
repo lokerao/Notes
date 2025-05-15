@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import { 
   Search, Grid, List as ListIcon, Clock, Star, Plus,
   Image, BookOpen, FileText, ListChecks, Key, 
