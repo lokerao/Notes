@@ -5,11 +5,17 @@ import { Book, Lock, Mail } from 'lucide-react';
 
 type AuthMode = 'signin' | 'signup';
 
+const PASSWORD_MIN_LENGTH = 6;
+
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<AuthMode>('signin');
   const [loading, setLoading] = useState(false);
+
+  const validatePassword = (password: string): boolean => {
+    return password.length >= PASSWORD_MIN_LENGTH;
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +23,10 @@ export default function Auth() {
 
     try {
       if (mode === 'signup') {
+        if (!validatePassword(password)) {
+          throw new Error(`Password must be at least ${PASSWORD_MIN_LENGTH} characters long`);
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -31,7 +41,12 @@ export default function Auth() {
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message === 'Invalid login credentials') {
+            throw new Error('Invalid email or password. Please try again.');
+          }
+          throw error;
+        }
         toast.success('Signed in successfully!');
       }
     } catch (error) {
@@ -99,8 +114,14 @@ export default function Auth() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full rounded-lg border-gray-300 pl-10 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 placeholder="••••••••"
+                minLength={PASSWORD_MIN_LENGTH}
               />
             </div>
+            {mode === 'signup' && (
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Password must be at least {PASSWORD_MIN_LENGTH} characters long
+              </p>
+            )}
           </div>
 
           <div>
@@ -132,7 +153,10 @@ export default function Auth() {
 
         <div className="mt-6">
           <button
-            onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+            onClick={() => {
+              setMode(mode === 'signin' ? 'signup' : 'signin');
+              setPassword('');
+            }}
             className="w-full text-center text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
           >
             {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
