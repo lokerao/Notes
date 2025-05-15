@@ -68,12 +68,12 @@ export default function Auth() {
             <Book className="h-6 w-6 text-indigo-600 dark:text-indigo-300" />
           </div>
           <h2 className="mt-4 text-center text-3xl font-bold text-gray-900 dark:text-white">
-            {mode === 'signin' ? 'Welcome back' : 'Create an account'}
+            Welcome to Lok Notes
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             {mode === 'signin'
-              ? 'Sign in to access your journal'
-              : 'Sign up to start your journal journey'}
+              ? 'Sign in to access your notes'
+              : 'Sign up to start your note-taking journey'}
           </p>
         </div>
 

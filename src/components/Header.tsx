@@ -28,7 +28,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
         <div className="flex items-center space-x-2">
           <BookText className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Journal.io</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Lok Notes</h1>
         </div>
         
         {user && (
