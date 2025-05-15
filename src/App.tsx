@@ -1,20 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
 import Auth from './components/Auth';
-import Header from './components/Header';
-import NoteForm from './components/NoteForm';
-import NoteList from './components/NoteList';
+import Dashboard from './components/Dashboard';
 
-function Dashboard() {
+function App() {
   const { user, loading } = useAuth();
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const handleNoteAdded = () => {
-    setRefreshTrigger((prev) => prev + 1);
-  };
 
   if (loading) {
     return (
@@ -34,31 +27,10 @@ function Dashboard() {
     );
   }
 
-  if (!user) {
-    return <Auth />;
-  }
-
-  return (
-    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
-      <Header />
-      <main className="flex-1 py-6">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <NoteForm onNoteAdded={handleNoteAdded} />
-          <NoteList refreshTrigger={refreshTrigger} />
-        </div>
-      </main>
-      <footer className="border-t border-gray-200 py-4 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
-        © {new Date().getFullYear()} Journal.io — Your digital journal companion
-      </footer>
-    </div>
-  );
-}
-
-function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Dashboard />
+        {!user ? <Auth /> : <Dashboard />}
         <Toaster
           position="top-right"
           toastOptions={{

@@ -4,9 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { Note } from '../types/database.types';
 import NoteCard from './NoteCard';
 import { toast } from 'react-hot-toast';
-import { Book, AlertCircle } from 'lucide-react';
+import { Book } from 'lucide-react';
 
-export default function NoteList({ refreshTrigger }: { refreshTrigger: number }) {
+interface NoteListProps {
+  refreshTrigger: number;
+  viewMode: 'grid' | 'list';
+}
+
+export default function NoteList({ refreshTrigger, viewMode }: NoteListProps) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -38,7 +43,6 @@ export default function NoteList({ refreshTrigger }: { refreshTrigger: number })
 
     fetchNotes();
 
-    // Set up real-time subscription
     const subscription = supabase
       .channel('notes_channel')
       .on(
@@ -97,13 +101,13 @@ export default function NoteList({ refreshTrigger }: { refreshTrigger: number })
       <div className="flex h-40 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800/50">
         <Book className="mb-2 h-10 w-10 text-gray-400" />
         <h3 className="mb-1 text-lg font-medium text-gray-900 dark:text-white">No notes yet</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Start creating your first note above!</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Start creating your first note!</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
       {notes.map((note) => (
         <NoteCard key={note.id} note={note} onDelete={handleDelete} />
       ))}
