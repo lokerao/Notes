@@ -31,8 +31,17 @@ export default function Dashboard() {
         setShowNoteForm(true);
         setIsQuickActionOpen(false);
         break;
-      // Add other action handlers here
+      case 'Journal':
+        setShowNoteForm(true);
+        setIsQuickActionOpen(false);
+        break;
+      case 'To-do':
+        setShowNoteForm(true);
+        setIsQuickActionOpen(false);
+        break;
       default:
+        toast.info('This feature is coming soon!');
+        setIsQuickActionOpen(false);
         break;
     }
   };
