@@ -41,7 +41,7 @@ export default function Dashboard() {
         setIsQuickActionOpen(false);
         break;
       default:
-        toast.info('This feature is coming soon!');
+        toast('This feature is coming soon!');
         setIsQuickActionOpen(false);
         break;
     }
