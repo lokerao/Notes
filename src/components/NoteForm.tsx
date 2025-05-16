@@ -25,17 +25,25 @@ export default function NoteForm({ onNoteAdded }: NoteFormProps) {
       return;
     }
 
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
     setIsUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from('note-images')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
+
+      if (!data) throw new Error('Upload failed');
 
       const { data: { publicUrl } } = supabase.storage
         .from('note-images')
@@ -44,11 +52,8 @@ export default function NoteForm({ onNoteAdded }: NoteFormProps) {
       setImageUrl(publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(`Error uploading image: ${error.message}`);
-      } else {
-        toast.error('Error uploading image');
-      }
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -133,7 +138,7 @@ export default function NoteForm({ onNoteAdded }: NoteFormProps) {
 
       <div className="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
         <div className="flex space-x-2">
-          <label className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+          <label className={`cursor-pointer rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 ${isUploading ? 'opacity-50' : ''}`}>
             <input
               type="file"
               accept="image/*"

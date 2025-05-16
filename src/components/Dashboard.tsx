@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
   Search, Grid, List as ListIcon, Plus,
-  Image, BookOpen, FileText, X
+  FileText, X
 } from 'lucide-react';
 import Header from './Header';
 import NoteList from './NoteList';
@@ -25,24 +25,10 @@ export default function Dashboard() {
     setShowNoteForm(false);
   };
 
-  const handleQuickAction = (type: string) => {
-    switch (type) {
-      case 'Note':
-      case 'Journal':
-        setShowNoteForm(true);
-        setIsQuickActionOpen(false);
-        break;
-      default:
-        setIsQuickActionOpen(false);
-        break;
-    }
+  const handleQuickAction = () => {
+    setShowNoteForm(true);
+    setIsQuickActionOpen(false);
   };
-
-  const quickActions = [
-    { icon: Image, label: 'Photo', color: 'bg-blue-500' },
-    { icon: BookOpen, label: 'Journal', color: 'bg-purple-500' },
-    { icon: FileText, label: 'Note', color: 'bg-indigo-500' }
-  ];
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
@@ -105,28 +91,25 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Quick Action FAB */}
       <div className="fixed bottom-6 right-6">
         <AnimatePresence>
           {isQuickActionOpen && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="absolute bottom-16 right-0 grid grid-cols-2 gap-2 rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-16 right-0 overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-800"
             >
-              {quickActions.map((action) => (
-                <button
-                  key={action.label}
-                  onClick={() => handleQuickAction(action.label)}
-                  className="flex items-center space-x-2 rounded-lg p-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  <span className={`rounded-lg ${action.color} p-2 text-white`}>
-                    <action.icon className="h-4 w-4" />
-                  </span>
-                  <span>{action.label}</span>
-                </button>
-              ))}
+              <button
+                onClick={handleQuickAction}
+                className="flex w-full items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white">
+                  <FileText className="h-4 w-4" />
+                </span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">New Note</span>
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
