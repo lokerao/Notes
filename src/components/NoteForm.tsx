@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { PenLine, Save, Image, List, Type, Link } from 'lucide-react';
+import { PenLine, Save, Image } from 'lucide-react';
 
 interface NoteFormProps {
   onNoteAdded: () => void;
@@ -12,7 +12,47 @@ export default function NoteForm({ onNoteAdded }: NoteFormProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('note-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('note-images')
+        .getPublicUrl(filePath);
+
+      setImageUrl(publicUrl);
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(`Error uploading image: ${error.message}`);
+      } else {
+        toast.error('Error uploading image');
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,19 +70,20 @@ export default function NoteForm({ onNoteAdded }: NoteFormProps) {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('notes').insert([
-        {
-          title,
-          content,
-          user_id: user.id,
-        },
-      ]);
+      const noteData = {
+        title,
+        content: imageUrl ? `${content}\n\n![](${imageUrl})` : content,
+        user_id: user.id,
+      };
+
+      const { error } = await supabase.from('notes').insert([noteData]);
 
       if (error) throw error;
 
       toast.success('Note added successfully!');
       setTitle('');
       setContent('');
+      setImageUrl('');
       onNoteAdded();
     } catch (error) {
       if (error instanceof Error) {
@@ -84,41 +125,29 @@ export default function NoteForm({ onNoteAdded }: NoteFormProps) {
         />
       </div>
 
+      {imageUrl && (
+        <div className="mb-4">
+          <img src={imageUrl} alt="Uploaded" className="max-h-64 rounded-lg object-cover" />
+        </div>
+      )}
+
       <div className="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
         <div className="flex space-x-2">
-          <button
-            type="button"
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-            title="Add image"
-          >
+          <label className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              disabled={isUploading}
+            />
             <Image className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-            title="Add list"
-          >
-            <List className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-            title="Format text"
-          >
-            <Type className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-            title="Add link"
-          >
-            <Link className="h-5 w-5" />
-          </button>
+          </label>
         </div>
         
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
           className="flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-medium text-white transition-all hover:from-indigo-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 dark:focus:ring-offset-gray-900"
         >
           {isSubmitting ? (

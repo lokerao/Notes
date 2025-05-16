@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
-  Search, Grid, List as ListIcon, Clock, Star, Plus,
-  Image, BookOpen, FileText, ListChecks, Key, 
-  PenTool, Mic, File, X
+  Search, Grid, List as ListIcon, Plus,
+  Image, BookOpen, FileText, X
 } from 'lucide-react';
 import Header from './Header';
 import NoteList from './NoteList';
@@ -29,19 +28,11 @@ export default function Dashboard() {
   const handleQuickAction = (type: string) => {
     switch (type) {
       case 'Note':
-        setShowNoteForm(true);
-        setIsQuickActionOpen(false);
-        break;
       case 'Journal':
         setShowNoteForm(true);
         setIsQuickActionOpen(false);
         break;
-      case 'To-do':
-        setShowNoteForm(true);
-        setIsQuickActionOpen(false);
-        break;
       default:
-        toast('This feature is coming soon!');
         setIsQuickActionOpen(false);
         break;
     }
@@ -50,12 +41,7 @@ export default function Dashboard() {
   const quickActions = [
     { icon: Image, label: 'Photo', color: 'bg-blue-500' },
     { icon: BookOpen, label: 'Journal', color: 'bg-purple-500' },
-    { icon: FileText, label: 'Note', color: 'bg-indigo-500' },
-    { icon: ListChecks, label: 'To-do', color: 'bg-green-500' },
-    { icon: Key, label: 'Password', color: 'bg-yellow-500' },
-    { icon: PenTool, label: 'Drawing', color: 'bg-pink-500' },
-    { icon: Mic, label: 'Voice', color: 'bg-red-500' },
-    { icon: File, label: 'Document', color: 'bg-orange-500' },
+    { icon: FileText, label: 'Note', color: 'bg-indigo-500' }
   ];
 
   return (
